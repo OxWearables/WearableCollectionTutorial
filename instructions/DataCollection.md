@@ -68,7 +68,31 @@ python autographer.py --setTime True --cameraDir D:/
 
 ### Continue here
 
-Eject and unplug the device. 
+We want to set the camera capture rate. To do this, open the `Autographer/menu.config` file in a text editor (e.g. TextEdit/Notepad/VS Code/Vim). Edit this file so that it looks as follows:
+
+```bash
+#Aiden Doherty
+#image files will have .res extension when true
+ObscureImageExtension=false
+
+#sequence mode will not work when true
+SequenceModeDisabled=true
+
+#continue to take pictures even when its dark when true
+TakePicturesInDark=true
+
+#display is no longer shown when true
+MenuDisabled=true
+
+#if 'MenuDisabled' is set (above) then these set the camera user parameters 
+#rate can be set to 'low', 'medium', 'high', 'continuous'
+Rate=medium
+GPS=false
+Audio=false
+Blink=false
+```
+
+Once you finished editing this file, save it, and then eject and unplug the device. 
 
 The camera operating instructions are as follows:
 
@@ -103,7 +127,7 @@ The device has a long battery life (at least a week), so you do not need to char
 ## 2.1 Instructions for setup
 
 ### Mac
-We are going to use the [Open Movement](https://config.openmovement.dev/) website to setup the accelerometer. In order to use this, you need to open it in Google Chrome. If you do not have it already installed, you can install it with homebrew:
+We are going to use the [Open Movement](https://config.openmovement.dev/) website to setup the accelerometer. In order to use this, you need to open it in Google Chrome. If you do not have it already installed, you can install it by by downloading it directly from [Google Chrome](https://www.google.com/chrome/), or by using [homebrew](https://www.google.com/chrome/) (if you have it installed):
 ```shell
 $ brew install --cask google-chrome
 ```
@@ -138,7 +162,7 @@ For the Windows users, you can download [OMGUI](https://github.com/digitalintera
 
 ### Continue here
 
-You can now add the wearable accelerometer to your growing personal wearable ecosystem. Please wear the accelerometer on the wrist of the hand that you usually use to write (i.e. your right wrist if you are right-handed). Generally, this will be most convenient for people since it is typical to wear a watch on the other wrist. However, if for some reason you cannot wear the accelerometer on the wrist of the hand that you use to write, then please wear it on the other wrist. The heart-beat symbol should be on the inside of your wrist (i.e. facing towards you).
+You can now unplug and add the accelerometer to your growing personal wearable ecosystem. Please wear the accelerometer on the wrist of the hand that you usually use to write (i.e. your right wrist if you are right-handed). Generally, this will be most convenient for people since it is typical to wear a watch on the other wrist. However, if for some reason you cannot wear the accelerometer on the wrist of the hand that you use to write, then please wear it on the other wrist. The heart-beat symbol should be on the inside of your wrist (i.e. facing towards you).
 ![arrow_alignment](https://user-images.githubusercontent.com/45289908/142623930-4c2ef153-acb5-442f-a65b-84f8eb051fd8.png)
 
 
