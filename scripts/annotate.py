@@ -34,7 +34,7 @@ def notebook_annotation(
     - "help"/"h" - display the commands
     - "next"/. - move to the next N images (if there are any left, but only jumping one image along)
     - "prev"/, - move to the previous N images (if there are any left, but only jumping one image along)
-    - "copy/ c" - copy the current annotation to the next image, and display the next N images
+    - "copy/ c [N]" - copy the current annotation to the (optionally, N) next image(s), and display the next N images
     - "quit/ q" - quit the loop, saving the annotations to the numpy array
 
     We save the current image index, so that we can resume the loop from where we left off, as well as how many images we have annotated so far.
@@ -64,18 +64,18 @@ def notebook_annotation(
     if len(schema.values()) != len(set(schema.values())):
         raise ValueError("Schema long names are not unique")
 
+    # Convert label_dir_name to str and strip "/" from the end
+    label_dir_name = str(label_dir_name).rstrip("/")
     # check if the directory exists and there are already annotations
-    if Path(f"raw_data/annotations/{label_dir_name}").exists():
+    if Path(f"{label_dir_name}").exists():
         # try load the annotations
-        if Path(f"raw_data/annotations/{label_dir_name}/labels.npy").exists():
-            annotations = np.load(
-                f"raw_data/annotations/{label_dir_name}/labels.npy", allow_pickle=True
-            )
+        if Path(f"{label_dir_name}/labels.npy").exists():
+            annotations = np.load(f"{label_dir_name}/labels.npy", allow_pickle=True)
         else:
             annotations = np.empty(len(image_paths), dtype=str)
         # try load the summary
-        if Path(f"raw_data/annotations/{label_dir_name}/summary.txt").exists():
-            with open(f"raw_data/annotations/{label_dir_name}/summary.txt", "r") as f:
+        if Path(f"{label_dir_name}/summary.txt").exists():
+            with open(f"{label_dir_name}/summary.txt", "r") as f:
                 lines = f.readlines()
                 current_index = int(lines[0].split(": ")[1])
                 n_annotated = int(lines[1].split(": ")[1])
@@ -84,7 +84,7 @@ def notebook_annotation(
             n_annotated = 0
     else:
         # create the directory
-        Path(f"raw_data/annotations/{label_dir_name}").mkdir(parents=True)
+        Path(f"{label_dir_name}").mkdir(parents=True)
         annotations = np.empty(len(image_paths), dtype=object)
         current_index = 0
         n_annotated = 0
@@ -149,11 +149,22 @@ def notebook_annotation(
             current_index = min(current_index + 1, len(image_paths) - 1)
         elif command in ["prev", ","]:
             current_index = max(current_index - 1, 0)
-        elif command in ["copy", "c"]:
+        elif command in ["copy", "c"]:  # normal copy
             if current_index > 0:
                 annotations[current_index] = annotations[current_index - 1]
                 current_index = min(current_index + 1, len(image_paths) - 1)
                 n_annotated += 1
+        elif command.startswith("copy") or command.startswith("c"):  # copy n
+            try:
+                n = int(command.split(" ")[1])
+            except:
+                n = 1
+            if current_index > 0 and current_index + n < len(image_paths):
+                annotations[current_index : current_index + n] = annotations[
+                    current_index - 1
+                ]
+                current_index = min(current_index + n, len(image_paths) - 1)
+                n_annotated += n
         elif command in ["help", "h"]:
             print("Commands:")
             print("- next/. - move to the next image")
@@ -165,9 +176,9 @@ def notebook_annotation(
 
         # === save the annotations and summary ===
         if n_annotated % save_freq == 0:
-            np.save(f"raw_data/annotations/{label_dir_name}/labels.npy", annotations)
+            np.save(f"{label_dir_name}/labels.npy", annotations)
 
-            with open(f"raw_data/annotations/{label_dir_name}/summary.txt", "w") as f:
+            with open(f"{label_dir_name}/summary.txt", "w") as f:
                 f.write(f"Current image index: {current_index}\n")
                 f.write(
                     f"Number of annotated images: {np.count_nonzero(annotations)}\n"
@@ -176,9 +187,9 @@ def notebook_annotation(
         # === refresh the output ===
         clear_output(wait=True)
 
-    np.save(f"raw_data/annotations/{label_dir_name}/labels.npy", annotations)
+    np.save(f"{label_dir_name}/labels.npy", annotations)
 
-    with open(f"raw_data/annotations/{label_dir_name}/summary.txt", "w") as f:
+    with open(f"{label_dir_name}/summary.txt", "w") as f:
         f.write(f"Current image index: {current_index}\n")
         f.write(f"Number of annotated images: {np.count_nonzero(annotations)}\n")
 
