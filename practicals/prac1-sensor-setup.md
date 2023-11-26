@@ -1,21 +1,43 @@
-# Wearable data collection
+# Wearable sensor set-up and data collection
 
-# Setting up devices
-Welcome to this tutorial where you will be collecting and analysing your own physical activity data using two wearables sensors: a wearable camera and a wrist-mounted accelerometer.
+Welcome to this tutorial where you will be setting up two wearable sensors to collect your own physical activity data: a wearable camera and a wrist-worn accelerometer.
 
-By going through this practical, we hope that you will learn more about both the promise of, but also ethical considerations with, using technologies such as wearable cameras and accelerometers for health research. You might also find it interesting to see how you can use these devices to measure your own activity and begin deploying custom algorithms on your own data.
+By going through this practical, we hope that you will learn more about both the promise of, but also ethical considerations with, using technologies such as wearable cameras and accelerometers for population health research. You might also find it interesting to see how you can use these devices to measure your own activity patterns and begin deploying custom algorithms on your own data.
 
-A lot of what we will be doing today stems from the CAPTURE-24 study. Previously, many lifestyle behaviours were captured using self-reported data in time-use diaries, and this study sought to compare this to using wearable devices. Take a moment to look through this foundational study: [Testing Self-Report Time-Use Diaries against Objective Instruments in Real Time (Gershuny et al., 2020)](https://journals.sagepub.com/doi/abs/10.1177/0081175019884591). 
+A lot of what we will be doing today stems from the CAPTURE-24 study. Previously, many lifestyle behaviours were captured using self-reported data in time-use diaries, and this study sought to compare this to using wearable devices. Take a moment to read this foundational study: [Testing Self-Report Time-Use Diaries against Objective Instruments in Real Time (Gershuny et al., 2020)](https://journals.sagepub.com/doi/abs/10.1177/0081175019884591). 
 
 
-## Practical code
-Either clone or download this repository to your computer and take note of where you save it to. You will later have to navigate to the Python scripts in it.
 
-## Collect devices
+# 0. Requirements
+
+## Device collection
 Collect your devices from your tutors, who will go through the camera and accelerometer set-up with you. You should have been given:
 - 1 wearable camera (Autographer), 
 - 1 wrist-worn accelerometer (Axivity AX3), and 
 - 1 micro-USB cable. 
+
+## Google Chrome installation
+Later in this practical, we will use the [Open Movement](https://config.openmovement.dev/) website to set up the accelerometer. This website is only compatible with Google Chrome. 
+
+If you do not have it already installed, you can download Google Chrome directly from [here](https://www.google.com/chrome/), or (on Mac) install it using [homebrew](https://www.google.com/chrome/):
+```shell
+$ brew install --cask google-chrome
+```
+
+## Python installation
+You will also need a recent version of Python (≥ 3.10) installed on your machine. We recommend using Miniconda to create a virtual Python environment:
+
+1. Download & install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (light-weight version of Anaconda).
+2. (Mac) Open the terminal. (Windows) Launch the **Miniconda Prompt**.
+3. Create a virtual environment:
+    ```console
+    $ conda create -n wearables_practicals python=3.10 openjdk
+    ```
+   This creates a virtual environment called `wearables_practicals` with Python version 3.10 and OpenJDK. OpenJDK is not required for this practical but will be needed for the subsequent ones. 
+4. Activate the environment:
+    ```console
+    $ conda activate wearables_practicals
+    ```
 
 
 # 1. Wearable cameras
@@ -126,13 +148,7 @@ The device has a long battery life (at least a week), so you do not need to char
 
 ## 2.1 Instructions for setup
 
-### Mac
-We are going to use the [Open Movement](https://config.openmovement.dev/) website to setup the accelerometer. In order to use this, you need to open it in Google Chrome. If you do not have it already installed, you can install it by by downloading it directly from [Google Chrome](https://www.google.com/chrome/), or by using [homebrew](https://www.google.com/chrome/) (if you have it installed):
-```shell
-$ brew install --cask google-chrome
-```
-
-Now, go to `https://config.openmovement.dev/`.
+Go to `https://config.openmovement.dev/`.
 
 ![](../assets/ax_config.jpg)
 
@@ -154,7 +170,7 @@ For the Windows users, you can download [OMGUI](https://github.com/digitalintera
 2. Select `Clear` to wipe the device.
 3. After selecting `Record`, write a session ID number, e.g. `42`.
 4. Change the sampling frequency to 100Hz and the range to +/- 8 g.
-5. Change the recording time to `Immediately on Disconnet`.
+5. Change the recording time to `Immediately on Disconnect`.
 6. Select `Flash during recording`. 
 7. Leave the rest to the default settings.
 
