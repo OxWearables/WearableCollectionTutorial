@@ -96,7 +96,7 @@ def notebook_annotation(
 
     # ============= Loop =============
 
-    left_offset = imgs_to_display // 2
+    left_offset = min(imgs_to_display - 1, 1)
     right_offset = imgs_to_display - left_offset
 
     while True:
