@@ -1,3 +1,5 @@
+# %% Imports
+import re
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -7,6 +9,7 @@ from typing import Tuple
 from IPython.display import clear_output
 
 
+# %% main function
 def notebook_annotation(
     label_dir_name: str,
     schema: dict[str, str],
@@ -45,6 +48,16 @@ def notebook_annotation(
     """
 
     # ============= Setup =============
+    # check there is at least one image to annotate
+    if (len(image_paths) < 1) or (len(image_datetimes) < 1):
+        raise ValueError("Empty image paths or image datetimes provided.")
+
+    # check that the image paths and image_datetimes are the same length
+    if len(image_paths) != len(image_datetimes):
+        raise ValueError(
+            "The length of `image_paths` does not match `image_datetimes`."
+        )
+
     commands_strs = ["next", ".", "prev", ",", "copy", "c", "quit", "q"]
     # check the schema short names do not contain any of the commands
     for short_name in schema.keys():
@@ -94,9 +107,11 @@ def notebook_annotation(
     tuples.sort(key=lambda x: x[1])
     image_paths, image_datetimes = zip(*tuples)
 
+    # maintain pointers to a few asynchronously loaded images to speed up image loading
+
     # ============= Loop =============
 
-    left_offset = min(imgs_to_display - 1, 1)
+    left_offset = min(imgs_to_display - 1, 1)  # have at least 1 image to the left
     right_offset = imgs_to_display - left_offset
 
     while True:
@@ -106,16 +121,15 @@ def notebook_annotation(
         min_image_index = max(current_index - left_offset, 0)
         max_image_index = min(current_index + right_offset, len(image_paths))
 
-        for i in range(min_image_index, max_image_index):
-            plt.subplot(1, imgs_to_display, i - min_image_index + 1)
+        for disp_i, i in enumerate(range(min_image_index, max_image_index)):
+            n_on_display = max_image_index - min_image_index
+            plt.subplot(1, n_on_display, disp_i + 1)
             plt.imshow(Image.open(image_paths[i]))
-            # for the title of the last image, include  {n_annotated}/{len(image_paths)}
-            if i == max_image_index - 1:
-                plt.title(
-                    f"{str(image_datetimes[i])[11:19]} ({n_annotated}/{len(image_paths)})"
-                )
-            else:
-                plt.title(f"{str(image_datetimes[i])[11:19]}")
+            rel_i = np.abs(i - current_index) if (i - current_index) != 0 else i
+            title = f"{rel_i} {str(image_datetimes[i])[11:19]}"  # relative numbers
+            if i == max_image_index - 1:  # for last image show progress
+                title += f" {n_annotated}/{len(image_paths)}"
+            plt.title(title)
             plt.xlabel(annotations[i])
             # remove all ticks and border
             plt.xticks([])
@@ -129,7 +143,7 @@ def notebook_annotation(
 
         plt.show()
 
-        plt.pause(0.001)  # pause to allow the figure to display
+        plt.pause(0.0001)  # pause to allow the figure to display
 
         # === Get command ===
 
@@ -145,20 +159,14 @@ def notebook_annotation(
             annotations[current_index] = command
             current_index = min(current_index + 1, len(image_paths) - 1)
             n_annotated += 1
-        elif command in ["next", "."]:
-            current_index = min(current_index + 1, len(image_paths) - 1)
-        elif command in ["prev", ","]:
-            current_index = max(current_index - 1, 0)
-        elif command in ["copy", "c"]:  # normal copy
-            if current_index > 0:
-                annotations[current_index] = annotations[current_index - 1]
-                current_index = min(current_index + 1, len(image_paths) - 1)
-                n_annotated += 1
+        elif command.startswith("next") or command.startswith("."):
+            n = get_repeat(command)
+            current_index = min(current_index + n, len(image_paths) - 1)
+        elif command.startswith("prev") or command.startswith(","):
+            n = get_repeat(command)
+            current_index = max(current_index - n, 0)
         elif command.startswith("copy") or command.startswith("c"):  # copy n
-            try:
-                n = int(command.split(" ")[1])
-            except:
-                n = 1
+            n = get_repeat(command)
             if current_index > 0 and current_index + n < len(image_paths):
                 annotations[current_index : current_index + n] = annotations[
                     current_index - 1
@@ -194,18 +202,34 @@ def notebook_annotation(
         f.write(f"Number of annotated images: {np.count_nonzero(annotations)}\n")
 
 
+def get_repeat(command: str) -> int:
+    """
+    For commands of the form "<command><number>", returns the number.
+    If the command is just of the form "<command>", return 1.
+    """
+    match = re.search(r"\d+", command)
+    if match:
+        return int(match.group())
+    else:
+        return 1
+
+
+# %%
 def main():
+    # %%
     time_format = "%Y%m%d_%H%M%S"
 
     def get_img_times(paths):
         return [datetime.strptime(path.parts[-1][17:32], time_format) for path in paths]
 
-    small_img_paths = list(Path("raw_data/camera/small").glob("*.JPG"))
+    small_img_paths = list(Path("../raw_data/camera/small").glob("*.JPG"))
     small_img_times = get_img_times(small_img_paths)
 
+    # convert to np.ndarray
     image_datetimes = np.array(small_img_times, dtype=np.datetime64)
     image_paths = np.array(small_img_paths)
 
+    # %% start annotation
     label_dir_name = "test"  # change this to something more descriptive
     schema = {
         # short name: long name
@@ -222,5 +246,6 @@ def main():
     )
 
 
+# %%
 if __name__ == "__main__":
     main()
