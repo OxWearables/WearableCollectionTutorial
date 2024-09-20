@@ -11,5 +11,5 @@ practicals
 
 To get started, clone this branch of the repository:
 ```bash
-git clone -b RMLWHDS2024 git@github.com:OxWearables/WearableCollectionTutorial.git
+git clone -b RMLWHDS2024 https://github.com/OxWearables/WearableCollectionTutorial.git
 ```
