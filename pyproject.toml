@@ -1,0 +1,18 @@
+[project]
+name = "wearablecollectiontutorial"
+version = "0.1.0"
+description = "Tutorial for collecting and processing wearable accelerometer and camera data."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "actipy>=3.5.0",
+    "matplotlib>=3.10.0",
+    "notebook>=7.3.2",
+    "pandas>=2.2.3",
+    "pillow>=11.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.1.0",
+]
